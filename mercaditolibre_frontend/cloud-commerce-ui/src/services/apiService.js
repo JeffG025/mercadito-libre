@@ -1,5 +1,5 @@
-// URL apuntando directamente al puerto 8085 del host actual para no requerir proxy de Nginx.
-const API_URL = "http://" + window.location.hostname + ":8085/api/v1/"
+// URL relativa: el proxy de Vite/Nginx la reenvía al backend en 8085.
+const API_URL = "/api/v1/"
 
 // Cabeceras con el token JWT si hay sesión. json=true añade Content-Type.
 const authHeaders = (json = false) => {
