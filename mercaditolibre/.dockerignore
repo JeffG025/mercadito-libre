@@ -1,0 +1,12 @@
+target/
+.mvn/
+.vscode/
+.github/
+.git/
+docs/
+.env
+.env.example
+*.md
+*.postman_collection.json
+mvnw
+mvnw.cmd

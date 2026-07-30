@@ -1,0 +1,36 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #245b93;
+  color: #0f172a;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-header {
+  background-color: #8a1f1f;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.content-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.content-body {
+  padding: 24px;
+  flex: 1;
+}

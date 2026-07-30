@@ -1,0 +1,27 @@
+# Secretos. Nunca al repositorio: las plantillas .env.example si van.
+.env
+*.env
+!*.env.example
+
+# Artefactos de compilacion
+target/
+node_modules/
+dist/
+build/
+
+# Paquetes de despliegue generados por los scripts
+*.tar
+*.tar.gz
+
+# Editores
+.vscode/
+.idea/
+*.iml
+*.iws
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log

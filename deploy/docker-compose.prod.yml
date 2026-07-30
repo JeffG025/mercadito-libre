@@ -1,0 +1,60 @@
+name: mercadito
+
+# Compose del droplet. Usa las imagenes cargadas con "docker load", no compila nada.
+# Solo necesitas este archivo y el .env en el servidor.
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    # VPS compartido de 2 GB: los limites evitan que este stack ahogue a los otros proyectos
+    mem_limit: 512m
+    command: --innodb-buffer-pool-size=128M --performance-schema=OFF --max-connections=50
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      # MySQL ejecuta lo que haya aqui la primera vez que arranca con el volumen vacio
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  app:
+    image: mercadito-app:latest
+    restart: unless-stopped
+    mem_limit: 640m
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      PAGOS_SIMULADOR: ${PAGOS_SIMULADOR:-false}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      SPRING_JPA_SHOW_SQL: "false"
+
+  web:
+    image: mercadito-web:latest
+    restart: unless-stopped
+    mem_limit: 64m
+    depends_on:
+      - app
+    ports:
+      - "${PUERTO_PUBLICO:-8084}:80"
+
+volumes:
+  db_data:

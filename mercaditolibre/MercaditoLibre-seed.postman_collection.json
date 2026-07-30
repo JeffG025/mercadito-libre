@@ -1,0 +1,123 @@
+{
+  "info": {
+    "name": "MercaditoLibre - Seed de datos",
+    "description": "Llena las tablas vacias: proveedores, clientes, ventas, detalle_venta (via /ventas/procesar) y pagos. Importa esta coleccion y ejecutala con el Collection Runner EN ORDEN (de arriba hacia abajo): los IDs se guardan solos en variables y se reutilizan. Requiere el backend en http://localhost:8085 y MySQL arriba.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8085/api/v1" }
+  ],
+  "item": [
+    {
+      "name": "1. Crear proveedor A",
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": [
+          "pm.test('creado', () => pm.response.code === 201 || pm.response.code === 200);",
+          "pm.collectionVariables.set('proveedorId', pm.response.json().id);"
+        ] } }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/proveedores", "host": ["{{base_url}}"], "path": ["proveedores"] },
+        "body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n  \"nombre\": \"TecnoDistribuciones SA\",\n  \"email\": \"ventas@tecnodist.mx\",\n  \"telefono\": \"5544332211\",\n  \"direccion\": \"Av. Reforma 123, CDMX\",\n  \"activo\": true\n}" }
+      }
+    },
+    {
+      "name": "2. Crear proveedor B",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/proveedores", "host": ["{{base_url}}"], "path": ["proveedores"] },
+        "body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n  \"nombre\": \"Importadora Global\",\n  \"email\": \"contacto@impglobal.mx\",\n  \"telefono\": \"5588776655\",\n  \"direccion\": \"Calle 5 de Mayo 456, Guadalajara\",\n  \"activo\": true\n}" }
+      }
+    },
+    {
+      "name": "3. Crear cliente A",
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": [
+          "pm.test('creado', () => pm.response.code === 201 || pm.response.code === 200);",
+          "pm.collectionVariables.set('clienteId', pm.response.json().id);"
+        ] } }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] },
+        "body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Perez\",\n  \"email\": \"juan.perez@mail.com\",\n  \"telefono\": \"5511223344\",\n  \"activo\": true\n}" }
+      }
+    },
+    {
+      "name": "4. Crear cliente B",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] },
+        "body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n  \"nombre\": \"Maria\",\n  \"apellido\": \"Lopez\",\n  \"email\": \"maria.lopez@mail.com\",\n  \"telefono\": \"5599887766\",\n  \"activo\": true\n}" }
+      }
+    },
+    {
+      "name": "5. Crear cliente C",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] },
+        "body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"Ramirez\",\n  \"email\": \"carlos.ramirez@mail.com\",\n  \"telefono\": \"5566554433\",\n  \"activo\": true\n}" }
+      }
+    },
+    {
+      "name": "6. (setup) Listar productos y guardar 2 IDs",
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": [
+          "const arr = pm.response.json();",
+          "if (Array.isArray(arr) && arr.length > 0) {",
+          "  pm.collectionVariables.set('prodId1', arr[0].id);",
+          "  pm.collectionVariables.set('prodId2', (arr[1] || arr[0]).id);",
+          "  console.log('Usando productos', pm.collectionVariables.get('prodId1'), pm.collectionVariables.get('prodId2'));",
+          "} else {",
+          "  console.warn('No hay productos. Crea productos antes de procesar ventas.');",
+          "}"
+        ] } }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{base_url}}/productos", "host": ["{{base_url}}"], "path": ["productos"] }
+      }
+    },
+    {
+      "name": "7. Procesar venta (llena ventas + detalle_venta, descuenta stock)",
+      "event": [
+        { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+          "const bu = pm.variables.replace('{{base_url}}');",
+          "function ensure(v,res,idx,done){ if(pm.collectionVariables.get(v)) return done(); pm.sendRequest({url: bu+'/'+res, method:'GET'}, (e,r)=>{ if(!e && r.code===200){ const a=r.json(); if(a.length){ pm.collectionVariables.set(v, a[Math.min(idx,a.length-1)].id);} } done(); }); }",
+          "ensure('clienteId','clientes',0, ()=> ensure('prodId1','productos',0, ()=> ensure('prodId2','productos',1, ()=>{}) ));"
+        ] } },
+        { "listen": "test", "script": { "type": "text/javascript", "exec": [
+          "pm.test('creada', () => pm.response.code === 201 || pm.response.code === 200);",
+          "pm.collectionVariables.set('ventaId', pm.response.json().id);"
+        ] } }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/ventas/procesar", "host": ["{{base_url}}"], "path": ["ventas", "procesar"] },
+        "body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n  \"cliente\": { \"id\": {{clienteId}} },\n  \"detalles\": [\n    { \"producto\": { \"id\": {{prodId1}} }, \"cantidad\": 2 },\n    { \"producto\": { \"id\": {{prodId2}} }, \"cantidad\": 1 }\n  ]\n}" }
+      }
+    },
+    {
+      "name": "8. Crear pago (usa la venta recien creada)",
+      "event": [
+        { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+          "if(!pm.collectionVariables.get('ventaId')){ pm.sendRequest({url: pm.variables.replace('{{base_url}}/ventas'), method:'GET'}, (e,r)=>{ if(!e && r.code===200){ const v=r.json(); if(v.length) pm.collectionVariables.set('ventaId', v[v.length-1].id);} }); }"
+        ] } }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/pagos", "host": ["{{base_url}}"], "path": ["pagos"] },
+        "body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n  \"venta\": { \"id\": {{ventaId}} },\n  \"monto\": 15497.00,\n  \"metodo\": \"tarjeta\",\n  \"fecha\": \"2026-07-03\",\n  \"referencia\": \"AUTH-000123\"\n}" }
+      }
+    }
+  ]
+}

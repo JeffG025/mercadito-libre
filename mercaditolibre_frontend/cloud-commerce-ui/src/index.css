@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Paleta de la tienda: morado de confianza + verde de transacción.
+   Se declaran como escalas propias para que las clases digan lo que significan
+   (bg-brand-600, text-success-700) en vez de heredar nombres genéricos de Tailwind. */
+@theme {
+  /* Marca. Es la rampa violeta: #7C3AED como color principal. */
+  --color-brand-50: #faf5ff;
+  --color-brand-100: #f3e8ff;
+  --color-brand-200: #ddd6fe;
+  --color-brand-300: #c4b5fd;
+  --color-brand-400: #a78bfa;
+  --color-brand-500: #8b5cf6;
+  --color-brand-600: #7c3aed;
+  --color-brand-700: #6d28d9;
+  --color-brand-800: #5b21b6;
+  --color-brand-900: #4c1d95;
+  --color-brand-950: #2e1065;
+
+  /* Confirmaciones: compra hecha, producto activo, pago aceptado. */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+}
+
+:root {
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  /* La interfaz es clara: sin esto, en Windows con tema oscuro los inputs salen negros sobre tarjetas blancas. */
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+}
+
+/* Ancho completo: el ancho de lectura lo fijan los contenedores max-w-* de cada vista. */
+#root {
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
