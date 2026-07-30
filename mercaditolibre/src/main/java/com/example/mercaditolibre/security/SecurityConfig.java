@@ -159,7 +159,8 @@ public class SecurityConfig {
                 .filter(o -> !o.isEmpty())
                 .toList();
         if (origenes.isEmpty()) {
-            throw new IllegalStateException("CORS_ORIGINS no puede quedar vacío: el frontend no podría llamar a la API");
+            log.warn("CORS_ORIGINS esta vacio. Usando origen por defecto: http://localhost:5174");
+            return List.of("http://localhost:5174");
         }
         log.info("CORS habilitado para: {}", origenes);
         return origenes;

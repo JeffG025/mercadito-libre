@@ -20,6 +20,10 @@ Write-Host "==> Subiendo compose..."
 scp docker-compose.prod.yml "${Servidor}:$RutaRemota/docker-compose.yml"
 if ($LASTEXITCODE -ne 0) { throw "Fallo el scp del compose" }
 
+Write-Host "==> Subiendo initdb..."
+scp -r initdb "${Servidor}:$RutaRemota/"
+if ($LASTEXITCODE -ne 0) { throw "Fallo el scp de initdb" }
+
 Write-Host "==> Subiendo imagenes (esto es lo que tarda)..."
 scp $gz "${Servidor}:$RutaRemota/"
 if ($LASTEXITCODE -ne 0) { throw "Fallo el scp de las imagenes" }
